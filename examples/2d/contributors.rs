@@ -155,12 +155,11 @@ fn select_system(
     time: Res<Time>,
 ) {
     let mut timer_fired = false;
-    for mut t in tq.iter_mut() {
-        if !t.tick(time.delta()).just_finished() {
-            continue;
+    if let Ok(mut t) = tq.single_mut() {
+        if t.tick(time.delta()).just_finished() {
+            t.reset();
+            timer_fired = true;
         }
-        t.reset();
-        timer_fired = true;
     }
 
     if !timer_fired {
@@ -178,14 +177,14 @@ fn select_system(
     {
         let (_, e) = &sel.order[prev];
         if let Ok((c, handle, mut tr)) = q.get_mut(*e) {
-            deselect(&mut *materials, handle.clone(), c, &mut *tr);
+            deselect(&mut *materials, handle, c, &mut *tr);
         }
     }
 
     let (name, e) = &sel.order[sel.idx];
 
     if let Ok((c, handle, mut tr)) = q.get_mut(*e) {
-        if let Some(mut text) = dq.iter_mut().next() {
+        if let Ok(mut text) = dq.single_mut() {
             select(&mut *materials, handle, c, &mut *tr, &mut *text, name);
         }
     }
@@ -217,7 +216,7 @@ fn select(
 /// the object to the back.
 fn deselect(
     materials: &mut Assets<ColorMaterial>,
-    mat_handle: Handle<ColorMaterial>,
+    mat_handle: &Handle<ColorMaterial>,
     cont: &Contributor,
     trans: &mut Transform,
 ) -> Option<()> {
@@ -301,7 +300,7 @@ fn move_system(time: Res<Time>, mut q: Query<(&Velocity, &mut Transform)>) {
 /// The names are deduplicated.
 /// This function only works if `git` is installed and
 /// the program is run through `cargo`.
-fn contributors() -> Contributors {
+fn contributors() -> BTreeSet<String> {
     let manifest_dir = std::env::var("CARGO_MANIFEST_DIR")
         .expect("This example needs to run through `cargo run --example`.");
 

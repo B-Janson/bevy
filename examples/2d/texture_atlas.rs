@@ -60,6 +60,8 @@ fn setup(
     let vendor_index = texture_atlas.get_texture_index(&vendor_handle).unwrap();
     let atlas_handle = texture_atlases.add(texture_atlas);
 
+    println!("{:?}", vendor_index);
+
     // set up a scene to display our texture atlas
     commands.spawn_bundle(OrthographicCameraBundle::new_2d());
     // draw a sprite from the atlas
