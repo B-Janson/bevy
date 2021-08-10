@@ -300,7 +300,7 @@ fn move_system(time: Res<Time>, mut q: Query<(&Velocity, &mut Transform)>) {
 /// The names are deduplicated.
 /// This function only works if `git` is installed and
 /// the program is run through `cargo`.
-fn contributors() -> BTreeSet<String> {
+fn contributors() -> Contributors {
     let manifest_dir = std::env::var("CARGO_MANIFEST_DIR")
         .expect("This example needs to run through `cargo run --example`.");
 
