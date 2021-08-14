@@ -7,7 +7,7 @@ pub mod system;
 pub mod touch;
 
 pub use axis::*;
-use bevy_ecs::schedule::{ParallelSystemDescriptorCoercion, SystemLabel};
+use bevy_ecs::{archetype::Archetypes, component::Components, entity::Entities, prelude::{Entity, Query, Res}, schedule::{ParallelSystemDescriptorCoercion, SystemLabel}};
 pub use input::*;
 
 pub mod prelude {
@@ -78,6 +78,28 @@ impl Plugin for InputPlugin {
                 CoreStage::PreUpdate,
                 touch_screen_input_system.label(InputSystem),
             );
+    }
+}
+
+pub struct InspectionPlugin;
+
+impl Plugin for InspectionPlugin {
+    fn build(&self, app: &mut App) {
+        app.add_system(inspect);
+    }
+}
+
+fn inspect(
+    keyboard: Res<Input<KeyCode>>,
+    all_entities: Query<Entity>,
+    entities: &Entities,
+    archetypes: &Archetypes,
+    components: &Components
+) {
+    if keyboard.just_pressed(KeyCode::Space) {
+        for entity in all_entities.iter() {
+            entities.inspect(entity, archetypes, components);
+        }
     }
 }
 

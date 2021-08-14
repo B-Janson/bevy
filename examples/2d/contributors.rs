@@ -1,4 +1,4 @@
-use bevy::prelude::*;
+use bevy::{ecs::{archetype::Archetypes, component::Components, entity::Entities}, input::InspectionPlugin, prelude::*};
 use rand::{prelude::SliceRandom, Rng};
 use std::{
     collections::BTreeSet,
@@ -9,7 +9,9 @@ use std::{
 fn main() {
     App::new()
         .add_plugins(DefaultPlugins)
+        .add_plugin(InspectionPlugin)
         .add_startup_system(setup)
+        // .add_system(inspect)
         .add_system(velocity_system)
         .add_system(move_system)
         .add_system(collision_system)
@@ -293,6 +295,21 @@ fn move_system(time: Res<Time>, mut q: Query<(&Velocity, &mut Transform)>) {
     for (v, mut t) in q.iter_mut() {
         t.translation += delta * v.translation;
         t.rotate(Quat::from_rotation_z(v.rotation * delta));
+    }
+}
+
+fn inspect(
+    keyboard: Res<Input<KeyCode>>,
+    all_entities: Query<Entity>,
+    entities: &Entities,
+    archetypes: &Archetypes,
+    components: &Components
+) {
+    if keyboard.just_pressed(KeyCode::Space) {
+        for entity in all_entities.iter() {
+            // entities.get(entity);
+            entities.inspect(entity, archetypes, components);
+        }
     }
 }
 

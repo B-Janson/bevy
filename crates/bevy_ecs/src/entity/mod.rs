@@ -2,9 +2,10 @@ mod map_entities;
 mod serde;
 
 pub use self::serde::*;
+use bevy_utils::tracing::info;
 pub use map_entities::*;
 
-use crate::{archetype::ArchetypeId, storage::SparseSetIndex};
+use crate::{archetype::{ArchetypeId, Archetypes}, component::Components, storage::SparseSetIndex};
 use std::{
     convert::TryFrom,
     fmt, mem,
@@ -365,6 +366,21 @@ impl Entities {
             Some(meta.location)
         } else {
             None
+        }
+    }
+
+    /// Adds debug info for the given entity including underlying components
+    #[inline]
+    pub fn inspect(&self, entity: Entity, archetypes: &Archetypes, components: &Components) {
+        println!("Entity: {:?}", entity);
+        if let Some(entity_location) = self.get(entity) {
+            if let Some(archetype) = archetypes.get(entity_location.archetype_id) {
+                for component in archetype.components() {
+                    if let Some(info) = components.get_info(component) {
+                        println!("\tComponent: {}", info.name());
+                    }
+                }
+            }
         }
     }
 
