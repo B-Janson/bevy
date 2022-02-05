@@ -3,7 +3,7 @@ use crate::{
     component::ComponentId,
     query::Access,
     schedule::{BoxedRunCriteriaLabel, GraphNode, RunCriteriaLabel},
-    system::{BoxedSystem, IntoSystem, System, SystemId},
+    system::{BoxedSystem, IntoSystem, System},
     world::World,
 };
 use std::borrow::Cow;
@@ -396,22 +396,11 @@ where
     }
 }
 
+#[derive(Default)]
 pub struct RunOnce {
     ran: bool,
-    system_id: SystemId,
     archetype_component_access: Access<ArchetypeComponentId>,
     component_access: Access<ComponentId>,
-}
-
-impl Default for RunOnce {
-    fn default() -> Self {
-        Self {
-            ran: false,
-            system_id: SystemId::new(),
-            archetype_component_access: Default::default(),
-            component_access: Default::default(),
-        }
-    }
 }
 
 impl System for RunOnce {
@@ -420,10 +409,6 @@ impl System for RunOnce {
 
     fn name(&self) -> Cow<'static, str> {
         Cow::Borrowed(std::any::type_name::<RunOnce>())
-    }
-
-    fn id(&self) -> SystemId {
-        self.system_id
     }
 
     fn new_archetype(&mut self, _archetype: &Archetype) {}
